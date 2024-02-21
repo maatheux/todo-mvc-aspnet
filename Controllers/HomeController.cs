@@ -8,26 +8,25 @@ namespace Todo.Controllers;
 public class HomeController : ControllerBase
 {
   [HttpGet("/")]
-  public IList<TodoModel> Get
-  (
-    [FromServices] AppDbContext context /* pegando o context dos servicos (injecao de dependecia) */
-  )
-  {
-    return context.Todos.ToList();
-  }
+  public IActionResult Get([FromServices] AppDbContext context)
+    => Ok(context.Todos.ToList()); // ira ter um return ok - status 200
 
+  
   [HttpGet("/{id:int}")]
-  public TodoModel? Get
+  public IActionResult Get
   (
     [FromRoute] int id,
     [FromServices] AppDbContext context
   )
   {
-    return context.Todos.FirstOrDefault(x => x.Id == id);
+    TodoModel? todo = context.Todos.FirstOrDefault(x => x.Id == id);
+    
+    return todo == null ? NotFound() : Ok(todo) ;
   }
 
+
   [HttpPost("/")]
-  public TodoModel Post
+  public IActionResult Post
   (
     [FromBody] TodoModel todo,
     [FromServices] AppDbContext context
@@ -36,11 +35,12 @@ public class HomeController : ControllerBase
     context.Todos.Add(todo);
     context.SaveChanges();
 
-    return todo;
+    return Created($"/{todo.Id}", todo);
   }
 
+
   [HttpPut("/{id:int}")]
-  public TodoModel Put
+  public IActionResult Put
   (
     [FromRoute] int id,
     [FromBody] TodoModel todo,
@@ -50,7 +50,7 @@ public class HomeController : ControllerBase
     TodoModel? todoToUpdate = context.Todos.FirstOrDefault(x => x.Id == id);
 
     if (todoToUpdate == null)
-      return todo;
+      return NotFound();
     
     todoToUpdate.Title = todo.Title;
     todoToUpdate.Done = todo.Done;
@@ -58,11 +58,12 @@ public class HomeController : ControllerBase
     context.Todos.Update(todoToUpdate);
     context.SaveChanges();
 
-    return todo;
+    return Ok(todo);
   }
 
+
   [HttpDelete("/{id:int}")]
-  public TodoModel? Delete
+  public IActionResult Delete
   (
     [FromRoute] int id,
     [FromServices] AppDbContext context
@@ -71,11 +72,11 @@ public class HomeController : ControllerBase
     TodoModel? todoToDelete = context.Todos.FirstOrDefault(x => x.Id == id);
 
     if (todoToDelete == null)
-      return null;
+      return NotFound();
     
     context.Todos.Remove(todoToDelete);
     context.SaveChanges();
 
-    return todoToDelete;
+    return Ok(todoToDelete);
   }
 }
