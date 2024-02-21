@@ -1,9 +1,12 @@
+using Todo.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(); // ira add os servicos de Controllers
+builder.Services.AddControllers();
+builder.Services.AddDbContext<AppDbContext>(); // ira add o context aos servicos disponibilizando-o para o projeto todo
 
 var app = builder.Build();
 
-app.MapControllers(); // ira mapear todas as Controllers do projeto, ira pegar todas as classes que herdam a classe ControllerBase
+app.MapControllers();
 
 app.Run();
