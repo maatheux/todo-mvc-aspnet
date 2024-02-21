@@ -15,4 +15,67 @@ public class HomeController : ControllerBase
   {
     return context.Todos.ToList();
   }
+
+  [HttpGet("/{id:int}")]
+  public TodoModel? Get
+  (
+    [FromRoute] int id,
+    [FromServices] AppDbContext context
+  )
+  {
+    return context.Todos.FirstOrDefault(x => x.Id == id);
+  }
+
+  [HttpPost("/")]
+  public TodoModel Post
+  (
+    [FromBody] TodoModel todo,
+    [FromServices] AppDbContext context
+  )
+  {
+    context.Todos.Add(todo);
+    context.SaveChanges();
+
+    return todo;
+  }
+
+  [HttpPut("/{id:int}")]
+  public TodoModel Put
+  (
+    [FromRoute] int id,
+    [FromBody] TodoModel todo,
+    [FromServices] AppDbContext context
+  )
+  {
+    TodoModel? todoToUpdate = context.Todos.FirstOrDefault(x => x.Id == id);
+
+    if (todoToUpdate == null)
+      return todo;
+    
+    todoToUpdate.Title = todo.Title;
+    todoToUpdate.Done = todo.Done;
+
+    context.Todos.Update(todoToUpdate);
+    context.SaveChanges();
+
+    return todo;
+  }
+
+  [HttpDelete("/{id:int}")]
+  public TodoModel? Delete
+  (
+    [FromRoute] int id,
+    [FromServices] AppDbContext context
+  )
+  {
+    TodoModel? todoToDelete = context.Todos.FirstOrDefault(x => x.Id == id);
+
+    if (todoToDelete == null)
+      return null;
+    
+    context.Todos.Remove(todoToDelete);
+    context.SaveChanges();
+
+    return todoToDelete;
+  }
 }
